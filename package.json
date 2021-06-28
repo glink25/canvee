@@ -1,6 +1,6 @@
 {
   "name": "canvee",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": "dist/packages/index.js",
   "module": "dist/packages/index.js",
   "types": "types/packages/index.d.ts",
@@ -10,6 +10,7 @@
     "lint": "eslint --ext .ts --ext .ts packages/",
     "buildCDN":"set NODE_ENV=production &&tsc --declaration -p ./ -t es2015 --emitDeclarationOnly --outDir types && rollup -c rollup.config.js"
   },
+  "files":["dist","types"],
   "husky": {
     "hooks": {
       "pre-commit": "npm run lint"

@@ -34,7 +34,7 @@ const img = new Img({
   },
   name: "img",
 });
-canvasSystem.scene.addChild(img);
+canvee.scene.addChild(img);
 ```
 
 组件的定位由 transform 属性中的 origin 和 anchor 决定，并根据 position 进行偏移。

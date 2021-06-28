@@ -29,6 +29,6 @@
     // "declarationDir": "types"
   },
   
-  "include": ["./packages/**/*.ts",],
+  "include": ["./packages/**/*.ts","types"],
   
 }
