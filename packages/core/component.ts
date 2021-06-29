@@ -144,7 +144,7 @@ class Component {
    *
    * @returns 每个组件同类型的Usage只能有一个，多次添加仅返回第一个
    */
-  use<T extends CanveeExtension>(u: T) {
+  use<T extends CanveeExtension>(u: T): T {
     let res;
     const index = this.usages.findIndex(
       (ug) => u.constructor === ug.constructor,

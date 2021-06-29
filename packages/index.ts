@@ -22,6 +22,7 @@ import {
   DebugSystem,
   Debug,
   Mask,
+  Shadow,
 } from "./extensions";
 import { useDragUnder } from "./extensions/event";
 import {
@@ -60,6 +61,7 @@ export {
   DebugSystem,
   Debug,
   Mask,
+  Shadow,
   useDragUnder,
   createGrid,
   createBezierCurve,
