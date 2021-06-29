@@ -33,6 +33,7 @@ class Interval {
 // singleton refresh timer
 const interval = new Interval();
 
+// 非Canvee extension，可以单独使用
 export default class Tween {
   #tweens: Array<{
     from: number;

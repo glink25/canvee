@@ -53,21 +53,24 @@ export default class Img extends Component {
             this.update();
           },
         );
-    this.image.onload = () => {
-      if (!hasSizeInArg) {
-        this.transform.size.width = this.image.width;
-        this.transform.size.height = this.image.height;
-      }
-      if (this.clip.w === -1 || this.clip.h === -1) {
-        this.clip.w = this.image.width;
-        this.clip.h = this.image.height;
-      }
-      this.update();
-    };
+    if (!this.image.complete) {
+      this.image.onload = () => {
+        if (!hasSizeInArg) {
+          this.transform.size.width = this.image.width;
+          this.transform.size.height = this.image.height;
+        }
+        if (this.clip.w === -1 || this.clip.h === -1) {
+          this.clip.w = this.image.width;
+          this.clip.h = this.image.height;
+        }
+        this.update();
+      };
+    }
   }
 
   /** @internal */
   render(ctx: CanvasRenderingContext2D) {
+    if (!this.image.complete) return;
     ctx.drawImage(
       this.image,
       this.clip.x,

@@ -6,6 +6,8 @@ type TextArg = {
   text: string;
   style?: {
     color?: Color;
+    fill?: Color;
+    stroke?: Color;
     fontFamily?: string;
     fontSize?: number;
     textAign?: CanvasTextAlign;
@@ -25,6 +27,7 @@ type TextArg = {
       | 800
       | 900;
     fontStyle?: "normal" | "italic" | "oblique";
+    strokeThickness?: number;
   };
 };
 const defaultTextArg: { style: DeepRequied<TextArg>["style"] } = {
@@ -36,6 +39,9 @@ const defaultTextArg: { style: DeepRequied<TextArg>["style"] } = {
     fontStyle: "normal",
     textAign: "center",
     textBaseLine: "middle",
+    fill: "black",
+    stroke: "transparent",
+    strokeThickness: 2,
   },
 };
 /**
@@ -84,12 +90,23 @@ export default class Text extends Component {
     }
     ctx.textAlign = this.style.textAign!;
     ctx.textBaseline = "middle";
-    ctx.fillStyle = this.style.color;
-    ctx.fillText(
-      this.text,
-      this.transform!.size.width * this.transform.origin.x,
-      this.transform!.size.height * this.transform.origin.y,
-    );
+    ctx.fillStyle = this.style.fill;
+    if (this.style.fill !== "transparent") {
+      ctx.fillText(
+        this.text,
+        this.transform!.size.width * this.transform.origin.x,
+        this.transform!.size.height * this.transform.origin.y,
+      );
+    }
+    if (this.style.stroke !== "transparent") {
+      ctx.strokeStyle = this.style.stroke;
+      ctx.lineWidth = this.style.strokeThickness;
+      ctx.strokeText(
+        this.text,
+        this.transform!.size.width * this.transform.origin.x,
+        this.transform!.size.height * this.transform.origin.y,
+      );
+    }
   }
 
   set text(v) {

@@ -3,7 +3,7 @@ type SoundArg = {
   autoplay?: boolean;
   loop?: boolean;
 };
-
+// 非Canvee extension，可以单独使用
 // 考虑兼容性，使用Audio实现而非Web Audio api
 export default class Sound {
   audio: HTMLAudioElement;
