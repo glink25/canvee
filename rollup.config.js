@@ -3,6 +3,8 @@ import resolve from "@rollup/plugin-node-resolve"; // 依赖引用插件
 import commonjs from "@rollup/plugin-commonjs"; // commonjs模块转换插件
 import ts from "rollup-plugin-typescript2";
 import json from "@rollup/plugin-json";
+import ttypescript from "ttypescript";
+import clear from "rollup-plugin-clear";
 import babel, { getBabelOutputPlugin } from "@rollup/plugin-babel";
 
 const getPath = (_path) => path.resolve(__dirname, _path);
@@ -12,13 +14,17 @@ const extensions = [".js", ".ts"];
 const tsPlugin = ts({
   tsconfig: getPath("./tsconfig.json"), // 导入本地ts配置
   extensions,
+  typescript: ttypescript,
 });
 const createCommonConfig = (name, outputName) => ({
   plugins: [
+    clear({
+      targets: ["lib"],
+      watch: false, // default: false
+    }),
     resolve(extensions),
     commonjs(),
     json(),
-
     babel({
       exclude: [
         "node_modules/**",
@@ -30,7 +36,7 @@ const createCommonConfig = (name, outputName) => ({
   ],
   output: {
     name: "canvee",
-    file: `dist/cdn/${outputName ?? name}.esm.js`, // es6模块
+    file: `lib/${outputName ?? name}.esm.js`, // es6模块
     format: "es",
     plugins: [
       getBabelOutputPlugin({
@@ -52,4 +58,4 @@ const splitConfigs = inputs.map((name) => {
   };
 });
 
-export default splitConfigs;
+export default totalConfig;

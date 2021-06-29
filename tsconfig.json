@@ -23,8 +23,14 @@
       "~/*": ["./*"]
     },
     "stripInternal": true,
-    "removeComments": true // 删除注释
-    //"declaration": false,
+    "removeComments": true, // 删除注释
+    "plugins": [
+      {
+        "transform": "@zerollup/ts-transform-paths",
+        "exclude": ["*"]
+      }
+    ],
+    "declaration": true,
     // "declarationMap": false, // 生成定义sourceMap
     // "declarationDir": "types"
   },
