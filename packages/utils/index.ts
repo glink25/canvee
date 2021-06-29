@@ -1,3 +1,4 @@
+import { Size } from "~/type";
 import Component from "../core/component";
 
 const slowDeepClone = <T>(target: T): T => JSON.parse(JSON.stringify(target));
@@ -117,25 +118,27 @@ const nextick = (fn: () => void) => {
   // in iOS here needs a trick to flush microtask quene
 };
 
-const watchResize = (el: HTMLElement, callback: () => void) => {
+const watchResize = (el: HTMLElement, callback: (s: Size) => void) => {
+  const getSize = () => ({ width: el.clientWidth, height: el.clientHeight });
+  let size = getSize();
   if (typeof window.ResizeObserver !== "undefined") {
     const resizeObserver = new ResizeObserver(() => {
-      callback();
+      callback(getSize());
     });
     resizeObserver.observe(el);
     window.onresize = () => {
-      callback();
+      callback(getSize());
     };
     const stop = () => {
       resizeObserver.disconnect();
     };
     return stop;
   }
-  let size = { width: el.clientWidth, height: el.clientHeight };
+
   const timer = setInterval(() => {
     if (el.clientWidth !== size.width || el.clientHeight !== size.height) {
-      callback();
-      size = { width: el.clientWidth, height: el.clientHeight };
+      size = getSize();
+      callback(size);
     }
   }, 500);
   const stop = () => {

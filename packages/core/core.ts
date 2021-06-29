@@ -34,6 +34,8 @@ export default class Canvee {
 
   #size: Size;
 
+  #resizeFn = (_s: Size) => {};
+
   #systems: Array<CanveeExtensionSystem>;
 
   #isDirty: boolean;
@@ -92,6 +94,10 @@ export default class Canvee {
     this.start();
   }
 
+  onResize(fn: (s: Size) => void) {
+    this.#resizeFn = fn;
+  }
+
   /** @internal */
   getRatio = () => ({
     x: this.canvas.width / this.canvas.clientWidth / this.devicePixelRatio,
@@ -99,11 +105,17 @@ export default class Canvee {
   });
 
   private init() {
-    this.canvas.width = this.#size.width * this.devicePixelRatio;
-    this.canvas.height = this.#size.height * this.devicePixelRatio;
+    const absSize = {
+      width: this.#size.width * this.devicePixelRatio,
+      height: this.#size.height * this.devicePixelRatio,
+    };
+    this.canvas.width = absSize.width;
+    this.canvas.height = absSize.height;
     this.ratio = this.getRatio();
-    this.#stopWatchResize = watchResize(this.canvas, () => {
+    // const ctx = this.canvas.getContext("2d")!;
+    this.#stopWatchResize = watchResize(this.canvas, (s) => {
       this.ratio = this.getRatio();
+      this.#resizeFn(s);
     });
   }
 
