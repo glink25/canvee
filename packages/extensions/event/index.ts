@@ -36,12 +36,15 @@ type EventArg = {
   hitArea?: HitArea;
 };
 
+type RawEvent = MouseEvent | UIEvent | TouchEvent | PointerEvent;
+
 export type EventEmitter = {
   x: number;
   y: number;
   current: Component;
   targets: Array<Component>;
   stopPropgation: () => void;
+  raw: RawEvent;
 };
 
 type ListenerType = (e: EventEmitter) => void;
@@ -216,6 +219,7 @@ export default class EventSystem implements CanveeExtensionSystem {
           stopPropgation() {
             isPrevent = true;
           },
+          raw: e,
         };
         travelComponent(
           instance.scene,
