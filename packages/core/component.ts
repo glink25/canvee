@@ -6,11 +6,14 @@ import {
   slowDeepClone,
   travelComponent,
 } from "../utils";
+import Dispatcher from "./dispatcher";
 
 type OriginType = Point;
 type AnchorType = Point;
 type ScaleType = Point;
 type SkewType = Point;
+
+type EmitOption = { bubble?: boolean };
 
 export type ComponentArg = {
   name?: string;
@@ -53,7 +56,7 @@ const defaultComponentArg = {
   },
 };
 
-class Component {
+class Component extends Dispatcher {
   transform: DeepRequied<ComponentArg>["transform"];
 
   children: Array<Component>;
@@ -72,6 +75,7 @@ class Component {
   notifyTreeReBuild?: () => void;
 
   constructor({ transform, name = defaultComponentArg.name }: ComponentArg) {
+    super();
     this.name = name;
     const selfTransform = mergeConfig(defaultComponentArg.transform, transform);
     this.transform = slowDeepClone(selfTransform);
@@ -174,6 +178,29 @@ class Component {
   destroy() {
     this.parent?.removeChild(this);
     // shoud delete
+  }
+
+  /** @internal */
+  recieve(comp: Component, name: string, value?: unknown, option?: EmitOption) {
+    const stopped = this.eventMap[name]?.some((fn) =>
+      fn({
+        target: comp,
+        value,
+      }),
+    );
+    if (option?.bubble && !stopped) {
+      this.parent?.recieve(comp, name, value, option);
+    }
+  }
+
+  /**
+   *
+   *
+   * @param {EmitOption} [option] option.bubble set as true means to make the event
+   * continual passed to the parent component until Scene
+   */
+  emit(name: string, value?: unknown, option?: EmitOption) {
+    this.recieve(this, name, value, option);
   }
 }
 

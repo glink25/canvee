@@ -23,7 +23,7 @@
       "~/*": ["./*"]
     },
     "stripInternal": true,
-    "removeComments": true, // 删除注释
+    "removeComments": false, // 保留注释
     "plugins": [
       {
         "transform": "@zerollup/ts-transform-paths",
