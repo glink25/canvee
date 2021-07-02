@@ -83,7 +83,13 @@ export default class Tween {
       const value = curve((timer / 60) * 1000, from, to - from, duration);
       timer += 1;
       if (timer >= (duration / 1000) * 60) {
-        this.#sliceFunc?.(value, progress);
+        this.#sliceFunc?.(
+          to,
+          this.#tweens.reduce(
+            (p, c, i) => (this.#currentIndex <= i ? p + c.duration : p),
+            0,
+          ) / this.#tweens.reduce((p, c) => p + c.duration, 0),
+        );
         if (this.#currentIndex + 1 < length) {
           this.#currentIndex += 1;
           timer = 0;
