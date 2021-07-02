@@ -3,7 +3,7 @@ import Canvee from "~/core/core";
 import CanveeExtensionSystem, {
   CanveeExtension,
   SystemHook,
-} from "~/core/system";
+} from "~/core/extension";
 import { DeepRequied, Point } from "~/type";
 import { travelComponent } from "~/utils";
 
@@ -96,6 +96,8 @@ export class Event implements CanveeExtension {
 
   hitArea: HitArea;
 
+  registedHooks = [];
+
   constructor(arg?: EventArg) {
     let hitArea: HitArea;
     if (!arg?.hitArea) {
@@ -104,6 +106,12 @@ export class Event implements CanveeExtension {
     this.hitArea = hitArea;
     this.events = [];
   }
+
+  beforeDiscard() {}
+
+  beforeRender() {}
+
+  afterRender() {}
 
   onAdded() {}
 
@@ -231,7 +239,7 @@ export default class EventSystem implements CanveeExtensionSystem {
             ctx.beginPath();
             if (
               (
-                c.usages.find((u) => this.isMatserOf(u)) as Event | undefined
+                c.usages.find((u) => this.isMasterOf(u)) as Event | undefined
               )?.events.some((v) => matchEvent(v.name, name))
             ) {
               const eventUsage = c.usages.find(
@@ -286,7 +294,7 @@ export default class EventSystem implements CanveeExtensionSystem {
 
   beforeSystemNextLoop() {}
 
-  isMatserOf(usage: CanveeExtension) {
+  isMasterOf(usage: CanveeExtension) {
     return usage instanceof Event;
   }
 }

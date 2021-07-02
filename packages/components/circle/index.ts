@@ -25,6 +25,7 @@ export default class Circle extends Component {
     this.transform.size.height = this.#radius * 2;
   }
 
+  /** @internal */
   render(ctx: CanvasRenderingContext2D) {
     ctx.beginPath();
     ctx.arc(this.radius, this.radius, this.radius, 0, Math.PI * 2, false);

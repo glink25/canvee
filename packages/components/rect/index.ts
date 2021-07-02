@@ -123,6 +123,7 @@ export default class Rect extends Component {
     return this.#backgroundColor;
   }
 
+  /** @internal */
   render(ctx: CanvasRenderingContext2D) {
     const drawRect = drawRoundRectPathBy(ctx, this.borderRadius !== 0);
     ctx.lineWidth = this.borderWidth;

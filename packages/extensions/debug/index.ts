@@ -1,5 +1,3 @@
-/* eslint-disable class-methods-use-this */
-
 import Graphic from "~/components/graphic";
 import Text from "~/components/text";
 import Component from "~/core/component";
@@ -7,7 +5,7 @@ import Canvee from "~/core/core";
 import CanveeExtensionSystem, {
   CanveeExtension,
   SystemHook,
-} from "~/core/system";
+} from "~/core/extension";
 
 const getFrameComp = () => {
   const SIZE = {
@@ -111,12 +109,29 @@ class Frames {
   }
 }
 
-export class Debug implements CanveeExtension {
-  showBorder: boolean;
+type DebugArgs = {
+  showBoundary?: boolean;
+};
 
-  constructor() {
-    this.showBorder = false;
+export class Debug implements CanveeExtension {
+  showBoundary: boolean;
+
+  registedHooks = [];
+
+  constructor(arg?: DebugArgs) {
+    this.showBoundary = arg?.showBoundary ?? false;
   }
+
+  beforeDiscard() {}
+
+  beforeRender(c: Component, ctx: CanvasRenderingContext2D) {
+    if (this.showBoundary) {
+      ctx.strokeStyle = "red";
+      ctx.strokeRect(0, 0, c.transform.size.width, c.transform.size.height);
+    }
+  }
+
+  afterRender() {}
 
   onAdded() {}
 }
@@ -169,7 +184,7 @@ export default class DebugSystem implements CanveeExtensionSystem {
 
   afterSystemTreeRebuild() {}
 
-  isMatserOf(usage: CanveeExtension) {
+  isMasterOf(usage: CanveeExtension) {
     return usage instanceof Debug;
   }
 

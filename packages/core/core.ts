@@ -3,7 +3,7 @@ import CanveeExtensionSystem, {
   CanveeExtension,
   SystemHook,
   SystemHooks,
-} from "./system";
+} from "./extension";
 import { Point, Size } from "../type";
 import { travelComponent, watchResize } from "../utils";
 
@@ -175,7 +175,9 @@ export default class Canvee {
           sys.beforeComponentRender(comp),
         );
         // end-beforeComponentRender
+        comp.usages.forEach((u) => u.beforeRender(comp, ctx));
         comp.render(ctx);
+        comp.usages.forEach((u) => u.afterRender(comp, ctx));
       },
       () => {
         ctx.restore();
@@ -198,6 +200,6 @@ export default class Canvee {
 
   /** @internal */
   getMasterSystem(ext: CanveeExtension) {
-    return this.#systems.find((sys) => sys.isMatserOf(ext));
+    return this.#systems.find((sys) => sys.isMasterOf(ext));
   }
 }

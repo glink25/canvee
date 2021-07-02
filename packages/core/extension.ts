@@ -1,8 +1,20 @@
 import Component from "./component";
 import Canvee from "./core";
 
+export const ExtensionHooks = [
+  "onAdded",
+  "beforeDiscard",
+  "beforeRender",
+  "afterRender",
+] as const;
+export type ExtensionHook = typeof ExtensionHooks[number];
+
 export interface CanveeExtension {
+  readonly registedHooks: Array<ExtensionHook>;
   onAdded: (c: Component) => void;
+  beforeDiscard: (c: Component) => void;
+  beforeRender: (c: Component, ctx: CanvasRenderingContext2D) => void;
+  afterRender: (c: Component, ctx: CanvasRenderingContext2D) => void;
 }
 
 export const SystemHooks = [
@@ -31,5 +43,5 @@ export default interface CanveeExtensionSystem {
 
   afterSystemTreeRebuild: () => void;
 
-  isMatserOf: <T extends CanveeExtension>(sys: T) => boolean;
+  isMasterOf: <T extends CanveeExtension>(sys: T) => boolean;
 }

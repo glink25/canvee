@@ -1,5 +1,5 @@
 import Component from "~/core/component";
-import { CanveeExtension } from "~/core/system";
+import { CanveeExtension, ExtensionHook } from "~/core/extension";
 import { reactive } from "~/utils";
 
 type ShadowArg = {
@@ -36,6 +36,8 @@ export default class Shadow implements CanveeExtension {
 
   #component?: Component;
 
+  registedHooks = ["onAdded"] as ExtensionHook[];
+
   constructor(arg: ShadowArg) {
     this.#color = arg?.color ?? DefaultShadowArg.color;
     const offset = arg?.offset ?? { ...DefaultShadowArg.offset };
@@ -49,16 +51,18 @@ export default class Shadow implements CanveeExtension {
     this.#component?.forceUpdate();
   }
 
-  onAdded(c: Component) {
-    const oldRender = c.render;
-    c.render = (ctx: CanvasRenderingContext2D) => {
-      ctx.shadowBlur = this.#blur;
-      ctx.shadowColor = this.#color;
-      ctx.shadowOffsetX = this.offset.x;
-      ctx.shadowOffsetY = this.offset.y;
-      oldRender.call(c, ctx);
-    };
+  beforeDiscard() {}
+
+  beforeRender(_c, ctx: CanvasRenderingContext2D) {
+    ctx.shadowBlur = this.#blur;
+    ctx.shadowColor = this.#color;
+    ctx.shadowOffsetX = this.offset.x;
+    ctx.shadowOffsetY = this.offset.y;
   }
+
+  afterRender() {}
+
+  onAdded() {}
 
   set color(s: string) {
     if (s !== this.#color) {

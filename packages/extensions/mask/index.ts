@@ -1,5 +1,4 @@
-import Component from "~/core/component";
-import { CanveeExtension } from "~/core/system";
+import { CanveeExtension, ExtensionHook } from "~/core/extension";
 
 /**
  *
@@ -10,11 +9,15 @@ import { CanveeExtension } from "~/core/system";
  * @description Mask组件会以添加其的组件的绘制线为边界作为遮罩
  */
 export default class Mask implements CanveeExtension {
-  onAdded(c: Component) {
-    const oldRender = c.render;
-    c.render = (ctx: CanvasRenderingContext2D) => {
-      oldRender.call(c, ctx);
-      ctx.clip();
-    };
+  registedHooks = ["onAdded"] as ExtensionHook[];
+
+  onAdded() {}
+
+  beforeDiscard() {}
+
+  afterRender(_c, ctx: CanvasRenderingContext2D) {
+    ctx.clip();
   }
+
+  beforeRender() {}
 }

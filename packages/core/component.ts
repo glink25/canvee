@@ -1,4 +1,4 @@
-import { CanveeExtension } from "./system";
+import { CanveeExtension } from "./extension";
 import { Point, Size, Position, DeepRequied } from "../type";
 import {
   mergeConfig,
@@ -112,6 +112,7 @@ class Component {
     this.notifyReRender?.();
   }
 
+  /** @internal */
   protected treeRebuild() {
     this.notifyTreeReBuild?.();
   }
@@ -157,6 +158,13 @@ class Component {
     }
     u.onAdded(this);
     return res;
+  }
+
+  discard<T extends CanveeExtension>(extension: T) {
+    extension.beforeDiscard(this);
+    this.usages = this.usages.filter(
+      (u) => u.constructor !== extension.constructor,
+    );
   }
 
   forceUpdate() {
