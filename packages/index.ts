@@ -23,6 +23,7 @@ import {
   Debug,
   Mask,
   Shadow,
+  Transition,
 } from "./extensions";
 import { useDragUnder } from "./extensions/event";
 import {
@@ -37,7 +38,7 @@ import {
   Quint,
   Elastic,
   Expo,
-} from "./extensions/tween/ease";
+} from "./utils/ease";
 import { mergeConfig } from "./utils";
 
 export default Canvee;
@@ -60,6 +61,7 @@ export {
   HitAreaType,
   DebugSystem,
   Debug,
+  Transition,
   Mask,
   Shadow,
   useDragUnder,

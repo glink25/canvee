@@ -1,4 +1,5 @@
-import { CurveFunction } from "./ease";
+import { CurveFunction } from "~/utils/ease";
+import interval from "~/utils/interval";
 
 type TweenArgs = {
   from: number;
@@ -7,31 +8,11 @@ type TweenArgs = {
   curve: CurveFunction;
 };
 
-// const finished = (from: number, to: number, current: number): boolean =>
-//   to > from ? current >= to : current <= to;
-
-class Interval {
-  quene: Array<{ name: string; fn: () => void }>;
-
-  constructor() {
-    this.quene = [];
-    const step = () => {
-      this.quene.forEach(({ fn }) => fn());
-      window.requestAnimationFrame(step);
-    };
-    window.requestAnimationFrame(step);
-  }
-
-  add(name: string, fn: () => void) {
-    this.quene.push({ name, fn });
-  }
-
-  remove(n: string, f: () => void) {
-    this.quene = this.quene.filter(({ name, fn }) => name !== n || f !== fn);
-  }
+enum Status {
+  Stopped,
+  Playing,
+  Paused,
 }
-// singleton refresh timer
-const interval = new Interval();
 
 // 非Canvee extension，可以单独使用
 export default class Tween {
@@ -53,6 +34,8 @@ export default class Tween {
 
   #currentIndex: number;
 
+  #status = Status.Stopped;
+
   constructor(arg: TweenArgs) {
     this.#tweens = [];
     this.#tweens.push({ ...arg });
@@ -67,22 +50,32 @@ export default class Tween {
     let timer = 0;
     const { length } = this.#tweens;
     let curLoop = 1;
+    this.#status = Status.Playing;
+    let newFrame = Math.floor(interval.getFrame());
     const onEnd = () => {
       if (curLoop < loop) {
         curLoop += 1;
         this.#currentIndex = 0;
         timer = 0;
+        newFrame = Math.floor(interval.getFrame());
       } else {
         interval.remove(this.#name, this.#step);
+        this.#status = Status.Stopped;
         this.#afterFunc?.();
       }
     };
+
     this.#step = () => {
       const { from, to, duration, curve } = this.#tweens[this.#currentIndex];
-      const progress = ((timer / 60) * 1000) / duration;
-      const value = curve((timer / 60) * 1000, from, to - from, duration);
-      timer += 1;
-      if (timer >= (duration / 1000) * 60) {
+      const getFrame = () => {
+        return newFrame;
+      };
+      const frame = getFrame();
+
+      const progress = ((timer / frame) * 1000) / duration;
+      const value = curve((timer / frame) * 1000, from, to - from, duration);
+
+      if (timer >= (duration / 1000) * frame) {
         this.#sliceFunc?.(
           to,
           this.#tweens.reduce(
@@ -99,6 +92,7 @@ export default class Tween {
         return;
       }
       this.#sliceFunc?.(value, progress);
+      timer += 1;
     };
     interval.add(this.#name, this.#step);
     return this;
@@ -120,14 +114,22 @@ export default class Tween {
   }
 
   pause() {
+    this.#status = Status.Paused;
     interval.remove(this.#name, this.#step);
   }
 
   resume() {
-    interval.add(this.#name, this.#step);
+    if (this.#status === Status.Paused) {
+      interval.add(this.#name, this.#step);
+      this.#status = Status.Playing;
+    }
   }
 
   stop() {
     interval.remove(this.#name, this.#step);
+  }
+
+  getTotalDuration() {
+    return this.#tweens.reduce((p, c) => p + c.duration, 0);
   }
 }

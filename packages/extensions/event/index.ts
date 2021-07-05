@@ -5,7 +5,7 @@ import CanveeExtensionSystem, {
   SystemHook,
 } from "~/core/extension";
 import { DeepRequied, Point } from "~/type";
-import { travelTreeable } from "~/utils";
+import { getSubTree, travelTreeable, Node } from "~/utils";
 import Event, {
   EventEmitter,
   EVENT_MAP,
@@ -14,7 +14,9 @@ import Event, {
   ListenerType,
 } from "./event";
 
-import getSubTree, { Node } from "./getSubTree";
+function getEventSubtree(scene) {
+  return getSubTree(scene, (c) => c.usages.some((u) => u instanceof Event));
+}
 
 function defineHitArea(
   ctx: CanvasRenderingContext2D,
@@ -100,7 +102,7 @@ export default class EventSystem implements CanveeExtensionSystem {
 
   /** @internal */
   updateEventTree() {
-    this.#eventTree = getSubTree(this.instance!.scene);
+    this.#eventTree = getEventSubtree(this.instance!.scene);
   }
 
   beforeSystemReRender() {}

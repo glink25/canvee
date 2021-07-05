@@ -59,7 +59,6 @@ export default class Event implements CanveeExtension {
   }
 
   beforeDiscard(c: Component) {
-    c.notifyTreeReBuild?.();
     (
       c.scene?.canvee.getMasterSystem(this) as EventSystem | undefined
     )?.updateEventTree();

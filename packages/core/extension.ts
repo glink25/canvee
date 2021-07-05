@@ -10,7 +10,7 @@ export const ExtensionHooks = [
 export type ExtensionHook = typeof ExtensionHooks[number];
 
 export interface CanveeExtension {
-  readonly registedHooks: Array<ExtensionHook>;
+  // readonly registedHooks: Array<ExtensionHook>;
   onAdded: (c: Component) => void;
   beforeDiscard: (c: Component) => void;
   beforeRender: (c: Component, ctx: CanvasRenderingContext2D) => void;

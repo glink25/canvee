@@ -1,6 +1,5 @@
 import { Component } from "~/core";
 import { Scene } from "~/core/component";
-import Event from "./event";
 
 export class Node {
   node: Component;
@@ -22,13 +21,8 @@ export class Node {
     this.children.pop();
   }
 }
-const hasEvent = (c: Component) => c.usages.some((u) => u instanceof Event);
-/**
- *
- *
- * @description create a subtree of component tree which component used event
- */
-export default function getSubTree(scene: Scene) {
+
+const getSubTree = (scene: Scene, match: (x: Component) => boolean) => {
   const travel = (c: Component): Node | undefined => {
     if (c.children.length > 0) {
       const node = new Node(c);
@@ -36,12 +30,14 @@ export default function getSubTree(scene: Scene) {
         const res = travel(child);
         if (res) node.children.push(res);
       });
-      if (node.children.length > 0 || hasEvent(c)) return node;
+      if (node.children.length > 0 || match(c)) return node;
       return undefined;
     }
-    return hasEvent(c) ? new Node(c) : undefined;
+    return match(c) ? new Node(c) : undefined;
   };
-  const node = travel(scene);
+  const node = travel(scene) ?? new Node(scene);
 
   return node;
-}
+};
+
+export default getSubTree;
