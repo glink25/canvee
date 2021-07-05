@@ -8,7 +8,7 @@
     "dev": "set NODE_ENV=developemnt && rollup -c rollup.config.js -w",
     "lint": "eslint --ext .ts --ext .ts packages/",
     "build": "set NODE_ENV=production && rollup -c rollup.config.js",
-    "publish": "npm version patch && npm run build && npm publish"
+    "prepublish": "npm version patch && npm run build"
   },
   "files": [
     "lib"
