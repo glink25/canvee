@@ -1,6 +1,6 @@
 {
   "name": "canvee",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "main": "lib/index.esm.js",
   "module": "lib/index.esm.js",
   "types": "lib/packages/index.d.ts",
@@ -8,7 +8,7 @@
     "dev": "set NODE_ENV=developemnt && rollup -c rollup.config.js -w",
     "lint": "eslint --ext .ts --ext .ts packages/",
     "build": "set NODE_ENV=production && rollup -c rollup.config.js",
-    "publish":"npm version patch && npm run build && npm publish"
+    "publish": "npm version patch && npm run build && npm publish"
   },
   "files": [
     "lib"
