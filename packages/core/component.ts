@@ -140,7 +140,7 @@ export default class Component extends Dispatcher {
     );
   }
 
-  addChildren<T extends Component>(...components: Array<T>) {
+  addChildren(...components: Array<Component>) {
     components.forEach((c) => {
       this.addComponent(c);
     });
