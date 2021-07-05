@@ -5,51 +5,16 @@ import CanveeExtensionSystem, {
   SystemHook,
 } from "~/core/extension";
 import { DeepRequied, Point } from "~/type";
-import { travelComponent } from "~/utils";
+import { travelTreeable } from "~/utils";
+import Event, {
+  EventEmitter,
+  EVENT_MAP,
+  HitArea,
+  HitAreaType,
+  ListenerType,
+} from "./event";
 
-const EVENT_MAP = {
-  pointerdown: ["mousedown", "touchstart"],
-  pointerup: ["mouseup", "touchend"],
-  pointermove: ["mousemove", "touchmove"],
-  // 只对鼠标事件有效
-  pointerenter: ["mouseenter"],
-  pointerleave: ["mouseleave"],
-};
-function matchEvent(name: string, targetName: string) {
-  if (name === targetName) return true;
-  return EVENT_MAP[name as keyof typeof EVENT_MAP]?.includes(targetName);
-}
-
-export enum HitAreaType {
-  CIRCLE,
-  // option: [x,y,radius,]
-  POLYGON,
-  // option: [x1,y1,x2,y2...]
-  DEFAULT,
-  // option: none
-}
-type HitArea = {
-  type: HitAreaType;
-  option: Array<number>;
-};
-type EventArg = {
-  hitArea?: HitArea;
-};
-
-type RawEvent = MouseEvent | UIEvent | TouchEvent | PointerEvent;
-
-export type EventEmitter = {
-  x: number;
-  y: number;
-  current: Component;
-  targets: Array<Component>;
-  stopPropgation: () => void;
-  raw: RawEvent;
-};
-
-type ListenerType = (e: EventEmitter) => void;
-
-type PointerEventName = keyof typeof EVENT_MAP;
+import getSubTree, { Node } from "./getSubTree";
 
 function defineHitArea(
   ctx: CanvasRenderingContext2D,
@@ -90,44 +55,9 @@ function defineHitArea(
   }
 }
 
-export class Event implements CanveeExtension {
-  /** @internal */
-  events: Array<{ name: PointerEventName; fn: ListenerType; global?: boolean }>;
-
-  hitArea: HitArea;
-
-  registedHooks = [];
-
-  constructor(arg?: EventArg) {
-    let hitArea: HitArea;
-    if (!arg?.hitArea) {
-      hitArea = { type: HitAreaType.DEFAULT, option: [] };
-    } else hitArea = arg.hitArea;
-    this.hitArea = hitArea;
-    this.events = [];
-  }
-
-  beforeDiscard() {}
-
-  beforeRender() {}
-
-  afterRender() {}
-
-  onAdded() {}
-
-  on(name: PointerEventName, fn: ListenerType) {
-    this.events.push({ name, fn });
-  }
-
-  onGlobal(name: PointerEventName, fn: ListenerType) {
-    this.events.push({ name, fn, global: true });
-  }
-
-  off(offName: PointerEventName, f: ListenerType) {
-    this.events = this.events.filter(
-      ({ name, fn }) => name !== offName && f === fn,
-    );
-  }
+function matchEvent(name: string, targetName: string) {
+  if (name === targetName) return true;
+  return EVENT_MAP[name as keyof typeof EVENT_MAP]?.includes(targetName);
 }
 
 type EventSystemArg = {
@@ -153,6 +83,8 @@ export default class EventSystem implements CanveeExtensionSystem {
 
   #listenFn: Array<(e: any) => void> = [];
 
+  #eventTree?: Node;
+
   prventScroll: boolean;
 
   constructor(arg?: EventSystemArg) {
@@ -163,14 +95,23 @@ export default class EventSystem implements CanveeExtensionSystem {
   registedHooks = [
     "beforeSystemStart",
     "beforeSystemStop",
+    "afterSystemTreeRebuild",
   ] as Array<SystemHook>;
+
+  /** @internal */
+  updateEventTree() {
+    this.#eventTree = getSubTree(this.instance!.scene);
+  }
 
   beforeSystemReRender() {}
 
-  afterSystemTreeRebuild() {}
+  afterSystemTreeRebuild() {
+    this.updateEventTree();
+  }
 
   beforeSystemStart() {
     if (!this.instance) return;
+    this.updateEventTree();
     const { instance } = this;
     const ctx = this.#copyCanvas.getContext("2d") as CanvasRenderingContext2D;
 
@@ -229,9 +170,9 @@ export default class EventSystem implements CanveeExtensionSystem {
           },
           raw: e,
         };
-        travelComponent(
-          instance.scene,
-          (c) => {
+        travelTreeable(
+          this.#eventTree!,
+          ({ node: c }) => {
             ctx.save();
             c.setContext(ctx);
             // c.render(ctx);

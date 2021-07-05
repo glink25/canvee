@@ -6,9 +6,9 @@
   "types": "lib/packages/index.d.ts",
   "scripts": {
     "dev": "set NODE_ENV=developemnt && rollup -c rollup.config.js -w",
-    "buildCDN": "set NODE_ENV=production && rollup -c rollup.cdn.config.js",
     "lint": "eslint --ext .ts --ext .ts packages/",
-    "build": "set NODE_ENV=production && rollup -c rollup.config.js"
+    "build": "set NODE_ENV=production && rollup -c rollup.config.js",
+    "publish":"npm version patch && npm run build && npm publish"
   },
   "files": [
     "lib"

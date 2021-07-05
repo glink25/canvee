@@ -1,6 +1,8 @@
+import Component from "./component";
+
 type EmitListener = {
-  target: any;
-  value: any;
+  target: Component;
+  value: unknown;
 };
 type Emitter = {
   name: string;

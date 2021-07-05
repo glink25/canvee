@@ -1,4 +1,4 @@
-import Component, { ComponentArg } from "./component";
+import { Scene } from "./component";
 import CanveeExtensionSystem, {
   CanveeExtension,
   SystemHook,
@@ -13,15 +13,6 @@ type CanveeArg = {
   devicePixelRatio?: number;
   systems?: Array<CanveeExtensionSystem>;
 };
-
-class Scene extends Component {
-  isRoot: boolean;
-
-  constructor(arg: ComponentArg) {
-    super(arg);
-    this.isRoot = true;
-  }
-}
 
 export default class Canvee {
   readonly canvas: HTMLCanvasElement;
@@ -67,19 +58,6 @@ export default class Canvee {
       return false;
     });
     this.#size = size;
-    this.scene = new Scene({
-      transform: {
-        size,
-      },
-      name: "scene",
-    });
-    this.scene.notifyReRender = () => {
-      this.markAsDirty();
-    };
-    this.scene.notifyTreeReBuild = () => {
-      this.markAsDirty();
-    };
-
     this.ratio = { x: 1, y: 1 };
     this.#sytemGroup = {} as {
       [p in SystemHook]: Array<CanveeExtensionSystem>;
@@ -89,6 +67,22 @@ export default class Canvee {
         sys.registedHooks.includes(hookName),
       );
     });
+    this.scene = new Scene({
+      transform: {
+        size,
+      },
+      name: "scene",
+      canvee: this,
+    });
+    this.scene.notifyReRender = () => {
+      this.markAsDirty();
+    };
+    this.scene.notifyTreeReBuild = () => {
+      this.markAsDirty();
+      this.#sytemGroup.afterSystemTreeRebuild.forEach((s) =>
+        s.afterSystemTreeRebuild(),
+      );
+    };
 
     this.init();
     this.start();

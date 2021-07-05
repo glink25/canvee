@@ -7,6 +7,7 @@ import {
   travelComponent,
 } from "../utils";
 import Dispatcher from "./dispatcher";
+import Canvee from "./core";
 
 type OriginType = Point;
 type AnchorType = Point;
@@ -30,7 +31,7 @@ export type ComponentArg = {
   };
 };
 const defaultComponentArg = {
-  name: "untitled",
+  name: "",
   transform: {
     size: { width: 0, height: 0 },
     position: { x: 0, y: 0 },
@@ -56,7 +57,7 @@ const defaultComponentArg = {
   },
 };
 
-class Component extends Dispatcher {
+export default class Component extends Dispatcher {
   transform: DeepRequied<ComponentArg>["transform"];
 
   children: Array<Component>;
@@ -67,6 +68,9 @@ class Component extends Dispatcher {
   name: string;
 
   parent?: Component;
+
+  // eslint-disable-next-line no-use-before-define
+  scene?: Scene;
 
   /** @internal */
   notifyReRender?: () => void;
@@ -121,17 +125,30 @@ class Component extends Dispatcher {
     this.notifyTreeReBuild?.();
   }
 
-  addChild<T extends Component>(c: T): T {
+  private addComponent(c: Component) {
+    c.parent = this;
+    c.scene = this.scene;
     travelComponent(c, (comp) => {
       comp.notifyReRender = this.notifyReRender;
       comp.notifyTreeReBuild = this.notifyTreeReBuild;
+      comp.scene = this.scene;
     });
 
-    c.parent = this;
     this.children.push(c);
     this.children = this.children.sort(
       (a, b) => a.transform.zIndex - b.transform.zIndex,
     );
+  }
+
+  addChildren<T extends Component>(...components: Array<T>) {
+    components.forEach((c) => {
+      this.addComponent(c);
+    });
+    this.treeRebuild();
+  }
+
+  addChild<T extends Component>(c: T): T {
+    this.addComponent(c);
     this.treeRebuild();
     return c;
   }
@@ -139,7 +156,9 @@ class Component extends Dispatcher {
   removeChild(c: Component) {
     const index = this.children.findIndex((e) => e === c);
     if (index !== -1) {
-      delete this.children[index];
+      const target = this.children[index];
+      target.scene = undefined;
+      target.parent = undefined;
       this.children.splice(index, 1);
       this.treeRebuild();
     }
@@ -204,7 +223,17 @@ class Component extends Dispatcher {
   }
 }
 
-export default Component;
+export class Scene extends Component {
+  isRoot: boolean;
+
+  canvee: Canvee;
+
+  constructor(arg: ComponentArg & { canvee: Canvee }) {
+    super(arg);
+    this.isRoot = true;
+    this.canvee = arg.canvee;
+  }
+}
 
 // type CalcTransformArg = {
 //   leftTop: Point;
