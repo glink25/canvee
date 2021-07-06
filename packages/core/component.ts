@@ -113,6 +113,12 @@ export default class Component extends Dispatcher {
   }
 
   /** @internal */
+  inflate(ctx: CanvasRenderingContext2D) {
+    this.usages.forEach((u) => u.beforeRender(this, ctx));
+    this.render(ctx);
+    this.usages.forEach((u) => u.afterRender(this, ctx));
+  }
+
   render(_ctx: CanvasRenderingContext2D) {}
 
   /** @internal */
@@ -232,6 +238,12 @@ export class Scene extends Component {
     super(arg);
     this.isRoot = true;
     this.canvee = arg.canvee;
+  }
+
+  render(ctx: CanvasRenderingContext2D) {
+    ctx.beginPath();
+    ctx.rect(0, 0, this.transform.size.width, this.transform.size.height);
+    ctx.closePath();
   }
 }
 

@@ -6,6 +6,7 @@ import CanveeExtensionSystem, {
 } from "./extension";
 import { Point, Size } from "../type";
 import { travelComponent, watchResize } from "../utils";
+import { Mask } from "~/extensions";
 
 type CanveeArg = {
   canvas: HTMLCanvasElement;
@@ -83,6 +84,7 @@ export default class Canvee {
         s.afterSystemTreeRebuild(),
       );
     };
+    this.scene.use(new Mask());
 
     this.init();
     this.start();
@@ -106,10 +108,20 @@ export default class Canvee {
     this.canvas.width = absSize.width;
     this.canvas.height = absSize.height;
     this.ratio = this.getRatio();
-    // const ctx = this.canvas.getContext("2d")!;
     this.#stopWatchResize = watchResize(this.canvas, (s) => {
       this.ratio = this.getRatio();
+      const newAbsSize = {
+        width: s.width * this.devicePixelRatio,
+        height: s.height * this.devicePixelRatio,
+      };
+      this.canvas.width = newAbsSize.width;
+      this.canvas.height = newAbsSize.height;
+
       this.#resizeFn(s);
+
+      const ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
+      ctx.scale(this.devicePixelRatio, this.devicePixelRatio);
+      this.markAsDirty();
     });
   }
 
@@ -169,9 +181,7 @@ export default class Canvee {
           sys.beforeComponentRender(comp),
         );
         // end-beforeComponentRender
-        comp.usages.forEach((u) => u.beforeRender(comp, ctx));
-        comp.render(ctx);
-        comp.usages.forEach((u) => u.afterRender(comp, ctx));
+        comp.inflate(ctx);
       },
       () => {
         ctx.restore();
