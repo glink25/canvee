@@ -1,0 +1,3 @@
+## Curve
+
+Curve严格来说并不是一个单独的Component，它是一个返回预定义的Graphic组件的函数，使用createBezierCurve函数将会生成一个经过任意点的贝塞尔曲线图像。

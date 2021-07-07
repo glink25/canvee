@@ -1,0 +1,4 @@
+## Extensions
+
+这里包含了一些常用的Canvee Extensions，一些Extension需要配合对应的ExtensionSystem使用，
+例如EventSystem和Event，可以在子文件夹下查看对应的README来确定使用方法。
