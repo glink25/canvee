@@ -29,14 +29,28 @@ const watchResize = (el: HTMLElement, callback: (s: Size) => void) => {
   return stop;
 };
 
-const slowDeepClone = <T>(target: T): T => JSON.parse(JSON.stringify(target));
+// const deepClone = <T>(target: T): T => JSON.parse(JSON.stringify(target));
+
+function deepClone<T extends object | Array<unknown>>(obj: T): T {
+  const objClone = Array.isArray(obj) ? [] : {};
+  if (obj && typeof obj === "object") {
+    Object.keys(obj).forEach((key) => {
+      if (obj[key] && typeof obj[key] === "object") {
+        objClone[key] = deepClone(obj[key]);
+      } else {
+        objClone[key] = obj[key];
+      }
+    });
+  }
+  return objClone as T;
+}
 
 const mergeConfig = <T extends object>(
   defaultConfig: T,
   custom?: Partial<T>,
 ): T => {
   if (!custom) return { ...defaultConfig } as T;
-  const newCustom = slowDeepClone(custom);
+  const newCustom = deepClone(custom);
   Object.entries(defaultConfig).forEach(([k, v]) => {
     type keys = keyof typeof newCustom;
     if (!newCustom[k as keys]) newCustom[k as keys] = v;
@@ -45,4 +59,4 @@ const mergeConfig = <T extends object>(
 };
 
 export default {};
-export { watchResize, slowDeepClone, mergeConfig };
+export { watchResize, deepClone, mergeConfig };

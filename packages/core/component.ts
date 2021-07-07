@@ -1,11 +1,6 @@
 import { CanveeExtension } from "./extension";
 import { Point, Size, Position, DeepRequied } from "../type";
-import {
-  mergeConfig,
-  reactive,
-  slowDeepClone,
-  travelComponent,
-} from "../utils";
+import { mergeConfig, reactive, deepClone, travelComponent } from "../utils";
 import Dispatcher from "./dispatcher";
 import Canvee from "./core";
 
@@ -82,7 +77,7 @@ export default class Component extends Dispatcher {
     super();
     this.name = name;
     const selfTransform = mergeConfig(defaultComponentArg.transform, transform);
-    this.transform = slowDeepClone(selfTransform);
+    this.transform = deepClone(selfTransform);
     this.children = [];
     this.usages = [];
 
