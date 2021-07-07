@@ -1,27 +1,6 @@
 import { CanveeExtension, Component } from "~/core";
 import { CurveFunction, Linear } from "~/utils/ease";
-import Tween from "../tween";
-
-// const arg = {
-//   group: {
-//     idle: [
-//       {
-//         name: "scale.x",
-//         component: "Comp",
-//         values: [
-//           { time: 0, value: 0, tween: "ease" },
-//           { time: 1000, value: 1, tween: "ease" },
-//         ],
-//       },
-//       {
-//         name: "scale.y",
-//         component: "Comp",
-//         values: [{ time: 0, value: 0, tween: "ease" },
-//              { time: 1000, value: 1, tween: "ease" },],
-//       },
-//     ],
-//   },
-// };
+import { Tween } from "~/extra";
 
 type TransiontionArg = {
   group: {

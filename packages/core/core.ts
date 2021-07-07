@@ -94,7 +94,6 @@ export default class Canvee {
     this.#resizeFn = fn;
   }
 
-  /** @internal */
   getRatio = () => ({
     x: this.canvas.width / this.canvas.clientWidth / this.devicePixelRatio,
     y: this.canvas.height / this.canvas.clientHeight / this.devicePixelRatio,

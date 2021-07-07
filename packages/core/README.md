@@ -3,7 +3,7 @@
 这里定义了Canvee的核心类和Component基类，以及Extension和ExtensionSystem的接口，你可以通过继承或者实现这些接口中定义的属性和方法来创建自定义的Component和Extension。
 
 # Canvee
-Canvee构造函数需要提供预定义的画布size，你可以指定一个canvas对象给Canvee，也可以让canvee自己创建一个canvas，但你需要手动将其挂载到DOM中。
+Canvee构造函数需要提供预定义的画布size，并需要指定一个HTMLCanvasElement给Canvee。
 
 如果你选择让Canvee绑定一个已经设置好的canvas对象，则Canvee中的1长度单位可能会不等于1px，导致绘制的图像被拉伸变形，类似的情况还会出现在画布大小被改变的时候，如果你希望控制各种情况下显示的画面比例，你可以在Canvee的onResize方法中动态修改Canvee.scene的size。
 ``` javascript
@@ -33,6 +33,9 @@ position：组件相对于原点的偏移量
 rotate：组件的旋转角度（0-360）
 scale：组件相对于原始大小的缩放
 skew：组件的斜切值
+
+zIndex：兄弟组件的zIndex值，较大的zIndex值不会被较小值的component遮盖
+alpha：组件的透明度，每个组件都是独立的，不会相对于父组件
 ```
 Canvee在渲染时会依照顺序依次设置组件的矩阵变换，不必担心先后顺序造成的变换差异。
 

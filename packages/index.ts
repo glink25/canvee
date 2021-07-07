@@ -13,8 +13,6 @@ import Canvee, {
   CanveeExtension,
 } from "./core";
 import {
-  Tween,
-  Sound,
   EventSystem,
   EventEmitter,
   Event,
@@ -40,6 +38,7 @@ import {
   Expo,
 } from "./utils/ease";
 import { mergeConfig } from "./utils";
+import { Tween, Sound } from "./extra";
 
 export default Canvee;
 export {
@@ -52,9 +51,10 @@ export {
   Graphic,
   Circle,
   Rect,
-  // extentions
+  // extra
   Tween,
   Sound,
+  // extentions
   EventSystem,
   Event,
   EventEmitter,

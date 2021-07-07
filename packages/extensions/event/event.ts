@@ -47,8 +47,6 @@ export default class Event implements CanveeExtension {
 
   hitArea: HitArea;
 
-  registedHooks = [];
-
   constructor(arg?: EventArg) {
     let hitArea: HitArea;
     if (!arg?.hitArea) {

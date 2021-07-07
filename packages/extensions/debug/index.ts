@@ -116,8 +116,6 @@ type DebugArgs = {
 export class Debug implements CanveeExtension {
   showBoundary: boolean;
 
-  registedHooks = [];
-
   constructor(arg?: DebugArgs) {
     this.showBoundary = arg?.showBoundary ?? false;
   }

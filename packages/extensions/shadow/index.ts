@@ -1,5 +1,5 @@
 import Component from "~/core/component";
-import { CanveeExtension, ExtensionHook } from "~/core/extension";
+import { CanveeExtension } from "~/core/extension";
 import { reactive } from "~/utils";
 
 type ShadowArg = {
@@ -35,8 +35,6 @@ export default class Shadow implements CanveeExtension {
   #blur: ShadowArg["blur"];
 
   #component?: Component;
-
-  registedHooks = ["onAdded"] as ExtensionHook[];
 
   constructor(arg: ShadowArg) {
     this.#color = arg?.color ?? DefaultShadowArg.color;

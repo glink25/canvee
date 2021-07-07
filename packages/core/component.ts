@@ -9,8 +9,6 @@ type AnchorType = Point;
 type ScaleType = Point;
 type SkewType = Point;
 
-type EmitOption = { bubble?: boolean };
-
 export type ComponentArg = {
   name?: string;
   transform?: {
@@ -52,7 +50,7 @@ const defaultComponentArg = {
   },
 };
 
-export default class Component extends Dispatcher {
+export default class Component extends Dispatcher<Component> {
   transform: DeepRequied<ComponentArg>["transform"];
 
   children: Array<Component>;
@@ -62,7 +60,7 @@ export default class Component extends Dispatcher {
 
   name: string;
 
-  parent?: Component;
+  // parent?: Component;
 
   // eslint-disable-next-line no-use-before-define
   scene?: Scene;
@@ -141,6 +139,9 @@ export default class Component extends Dispatcher {
     );
   }
 
+  /**
+   * @description add muiltiple child component at one time
+   */
   addChildren(...components: Array<Component>) {
     components.forEach((c) => {
       this.addComponent(c);
@@ -148,12 +149,18 @@ export default class Component extends Dispatcher {
     this.treeRebuild();
   }
 
+  /**
+   * @description add one component as child
+   */
   addChild<T extends Component>(c: T): T {
     this.addComponent(c);
     this.treeRebuild();
     return c;
   }
 
+  /**
+   * @description remove child component
+   */
   removeChild(c: Component) {
     const index = this.children.findIndex((e) => e === c);
     if (index !== -1) {
@@ -167,7 +174,7 @@ export default class Component extends Dispatcher {
 
   /**
    *
-   * @returns 每个组件同类型的Usage只能有一个，多次添加仅返回第一个
+   * @returns 每个组件同类型的Extension只能有一个，多次添加仅返回第一个
    */
   use<T extends CanveeExtension>(u: T): T {
     let res;
@@ -184,6 +191,9 @@ export default class Component extends Dispatcher {
     return res;
   }
 
+  /**
+   * @description remove added extension
+   */
   discard<T extends CanveeExtension>(extension: T) {
     extension.beforeDiscard(this);
     this.usages = this.usages.filter(
@@ -198,29 +208,6 @@ export default class Component extends Dispatcher {
   destroy() {
     this.parent?.removeChild(this);
     // shoud delete
-  }
-
-  /** @internal */
-  recieve(comp: Component, name: string, value?: unknown, option?: EmitOption) {
-    const stopped = this.eventMap[name]?.some((fn) =>
-      fn({
-        target: comp,
-        value,
-      }),
-    );
-    if (option?.bubble && !stopped) {
-      this.parent?.recieve(comp, name, value, option);
-    }
-  }
-
-  /**
-   *
-   *
-   * @param {EmitOption} [option] option.bubble set as true means to make the event
-   * continual passed to the parent component until Scene
-   */
-  emit(name: string, value?: unknown, option?: EmitOption) {
-    this.recieve(this, name, value, option);
   }
 }
 
