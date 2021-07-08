@@ -1,4 +1,4 @@
-import { Component } from "~/core";
+import { CanveeExtensionSystem, Component } from "~/core";
 import { Scene } from "~/core/component";
 
 export class Node {
@@ -40,4 +40,28 @@ const getSubTree = (scene: Scene, match: (x: Component) => boolean) => {
   return node;
 };
 
+const getSubTreeArr = (systems: Array<CanveeExtensionSystem>, scene: Scene) => {
+  const travel = (c: Component): (Node | 0)[] => {
+    if (c.children.length > 0) {
+      const nodes = systems.map(() => new Node(c));
+      c.children.forEach((child) => {
+        const res = travel(child);
+        nodes.forEach((p, i) => {
+          if (res[i] !== 0) {
+            p.children.push((res as Node[])[i]);
+          }
+        });
+      });
+      return nodes;
+    }
+    return systems.map((sys) =>
+      c.usages.some((u) => sys.isMasterOf(u)) ? new Node(c) : 0,
+    );
+  };
+  const arr = travel(scene) ?? [new Node(scene)];
+
+  return arr;
+};
+
 export default getSubTree;
+export { getSubTreeArr };

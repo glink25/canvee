@@ -1,7 +1,6 @@
 import Graphic from "~/components/graphic";
 import Text from "~/components/text";
 import Component from "~/core/component";
-import Canvee from "~/core/core";
 import CanveeExtensionSystem, {
   CanveeExtension,
   SystemHook,
@@ -113,14 +112,13 @@ type DebugArgs = {
   showBoundary?: boolean;
 };
 
-export class Debug implements CanveeExtension {
+export class Debug extends CanveeExtension {
   showBoundary: boolean;
 
   constructor(arg?: DebugArgs) {
-    this.showBoundary = arg?.showBoundary ?? false;
+    super();
+    this.showBoundary = arg?.showBoundary ?? true;
   }
-
-  beforeDiscard() {}
 
   beforeRender(c: Component, ctx: CanvasRenderingContext2D) {
     if (this.showBoundary) {
@@ -128,13 +126,9 @@ export class Debug implements CanveeExtension {
       ctx.strokeRect(0, 0, c.transform.size.width, c.transform.size.height);
     }
   }
-
-  afterRender() {}
-
-  onAdded() {}
 }
 
-export default class DebugSystem implements CanveeExtensionSystem {
+export default class DebugSystem extends CanveeExtensionSystem {
   frameComp: Component;
 
   frames: Frames;
@@ -147,8 +141,6 @@ export default class DebugSystem implements CanveeExtensionSystem {
 
   timer: NodeJS.Timeout;
 
-  instance?: Canvee;
-
   registedHooks = [
     "beforeSystemStart",
     "beforeSystemNextLoop",
@@ -156,6 +148,7 @@ export default class DebugSystem implements CanveeExtensionSystem {
   ] as Array<SystemHook>;
 
   constructor() {
+    super();
     this.frames = new Frames();
     this.flagCount = 0;
     const [comp, setText] = getFrameComp();
@@ -178,10 +171,6 @@ export default class DebugSystem implements CanveeExtensionSystem {
     }, DURATION);
   }
 
-  beforeSystemReRender() {}
-
-  afterSystemTreeRebuild() {}
-
   isMasterOf(usage: CanveeExtension) {
     return usage instanceof Debug;
   }
@@ -197,6 +186,4 @@ export default class DebugSystem implements CanveeExtensionSystem {
   beforeSystemStart() {
     this.instance!.scene.addChild(this.frameComp);
   }
-
-  beforeComponentRender(_c: Component) {}
 }

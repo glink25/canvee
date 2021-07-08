@@ -9,12 +9,14 @@ export const ExtensionHooks = [
 ] as const;
 export type ExtensionHook = typeof ExtensionHooks[number];
 
-export interface CanveeExtension {
-  // readonly registedHooks: Array<ExtensionHook>;
-  onAdded: (c: Component) => void;
-  beforeDiscard: (c: Component) => void;
-  beforeRender: (c: Component, ctx: CanvasRenderingContext2D) => void;
-  afterRender: (c: Component, ctx: CanvasRenderingContext2D) => void;
+export class CanveeExtension {
+  beforeDiscard(_c: Component) {}
+
+  beforeRender(_c: Component, _ctx: CanvasRenderingContext2D) {}
+
+  afterRender(_c: Component, _ctx: CanvasRenderingContext2D) {}
+
+  onAdded(_c: Component) {}
 }
 
 export const SystemHooks = [
@@ -27,21 +29,45 @@ export const SystemHooks = [
 ] as const;
 export type SystemHook = typeof SystemHooks[number];
 
-export default interface CanveeExtensionSystem {
-  instance?: Canvee;
-  readonly registedHooks: Array<SystemHook>;
+export default class CanveeExtensionSystem {
+  protected instance?: Canvee;
 
-  beforeSystemStart: () => void;
+  readonly registedHooks: Array<SystemHook> = [];
 
-  beforeSystemNextLoop: () => void;
+  /**
+   *
+   *
+   * @description is ExtensionSystem will use subtree which contains subExtension
+   */
+  willUseSubtree?: boolean;
 
-  beforeSystemReRender: () => void;
+  setInstance(c: Canvee) {
+    this.instance = c;
+  }
 
-  beforeSystemStop: () => void;
+  /**
+   *
+   * @description here can get canvee instance
+   */
+  beforeSystemStart() {
+    // here can get instance
+  }
 
-  beforeComponentRender: (_c: Component) => void;
+  beforeSystemNextLoop() {}
 
-  afterSystemTreeRebuild: () => void;
+  beforeSystemReRender() {}
 
-  isMasterOf: <T extends CanveeExtension>(sys: T) => boolean;
+  beforeSystemStop() {}
+
+  beforeComponentRender(_c: Component) {}
+
+  afterSystemTreeRebuild() {}
+
+  isMasterOf<T extends CanveeExtension>(_sys: T) {
+    return false;
+  }
+
+  get subtree() {
+    return this.instance?.getSubTreeForSystem(this);
+  }
 }

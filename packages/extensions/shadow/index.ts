@@ -27,7 +27,7 @@ const DefaultShadowArg = {
  * @implements {CanveeExtension}
  * @description Shadow组件会为组件添加阴影
  */
-export default class Shadow implements CanveeExtension {
+export default class Shadow extends CanveeExtension {
   #color: ShadowArg["color"];
 
   offset: Required<ShadowArg>["offset"];
@@ -37,6 +37,7 @@ export default class Shadow implements CanveeExtension {
   #component?: Component;
 
   constructor(arg: ShadowArg) {
+    super();
     this.#color = arg?.color ?? DefaultShadowArg.color;
     const offset = arg?.offset ?? { ...DefaultShadowArg.offset };
     this.offset = reactive(offset, () => {
@@ -49,18 +50,12 @@ export default class Shadow implements CanveeExtension {
     this.#component?.forceUpdate();
   }
 
-  beforeDiscard() {}
-
   beforeRender(_c, ctx: CanvasRenderingContext2D) {
     ctx.shadowBlur = this.#blur;
     ctx.shadowColor = this.#color;
     ctx.shadowOffsetX = this.offset.x;
     ctx.shadowOffsetY = this.offset.y;
   }
-
-  afterRender() {}
-
-  onAdded() {}
 
   set color(s: string) {
     if (s !== this.#color) {

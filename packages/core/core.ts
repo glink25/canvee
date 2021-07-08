@@ -1,12 +1,9 @@
 import { Scene } from "./component";
-import CanveeExtensionSystem, {
-  CanveeExtension,
-  SystemHook,
-  SystemHooks,
-} from "./extension";
+import CanveeExtensionSystem, { SystemHook, SystemHooks } from "./extension";
 import { Point, Size } from "../type";
-import { travelComponent, watchResize } from "../utils";
-import { Mask } from "~/extensions";
+import { Node, travelComponent, watchResize } from "../utils";
+
+import { getSubTreeArr } from "~/utils/subtree";
 
 type CanveeArg = {
   canvas: HTMLCanvasElement;
@@ -28,7 +25,7 @@ export default class Canvee {
 
   #resizeFn = (_s: Size) => {};
 
-  #systems: Array<CanveeExtensionSystem>;
+  systems: Array<CanveeExtensionSystem>;
 
   #isDirty: boolean;
 
@@ -40,6 +37,10 @@ export default class Canvee {
     [p in SystemHook]: Array<CanveeExtensionSystem>;
   };
 
+  readonly #willUseSubtreeSystems: Array<CanveeExtensionSystem>;
+
+  #subtreeArr: Array<Node | 0> = [];
+
   constructor({ canvas, size, systems = [], devicePixelRatio = 1 }: CanveeArg) {
     this.#isDirty = true;
     this.devicePixelRatio = devicePixelRatio;
@@ -50,7 +51,7 @@ export default class Canvee {
       this.canvas = c;
     }
     const syses: CanveeExtensionSystem[] = [];
-    this.#systems = systems.filter((sys) => {
+    this.systems = systems.filter((sys) => {
       // 相同类型的system只能存在一个
       if (syses.every((e) => e.constructor !== sys.constructor)) {
         syses.push(sys);
@@ -64,10 +65,13 @@ export default class Canvee {
       [p in SystemHook]: Array<CanveeExtensionSystem>;
     };
     SystemHooks.forEach((hookName) => {
-      this.#sytemGroup[hookName] = this.#systems.filter((sys) =>
+      this.#sytemGroup[hookName] = this.systems.filter((sys) =>
         sys.registedHooks.includes(hookName),
       );
     });
+    this.#willUseSubtreeSystems = this.systems.filter(
+      (sys) => sys.willUseSubtree,
+    );
     this.scene = new Scene({
       transform: {
         size,
@@ -79,12 +83,12 @@ export default class Canvee {
       this.markAsDirty();
     };
     this.scene.notifyTreeReBuild = () => {
+      this.updateSystemSubTreeArr();
       this.markAsDirty();
       this.#sytemGroup.afterSystemTreeRebuild.forEach((s) =>
         s.afterSystemTreeRebuild(),
       );
     };
-    this.scene.use(new Mask());
 
     this.init();
     this.start();
@@ -125,9 +129,10 @@ export default class Canvee {
   }
 
   private start() {
+    this.updateSystemSubTreeArr();
     // beforeStart
     this.#sytemGroup.beforeSystemStart.forEach((sys) => {
-      sys.instance = this;
+      sys.setInstance(this);
       sys.beforeSystemStart();
     });
     const ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
@@ -148,13 +153,13 @@ export default class Canvee {
         });
         this.#isDirty = false;
       }
+      // beforeSystemNextLoop
+      this.#sytemGroup.beforeSystemNextLoop.forEach((sys) => {
+        sys.beforeSystemNextLoop();
+      });
+      // beforeSystemNextLoop
       window.requestAnimationFrame(loop);
     };
-    // beforeSystemNextLoop
-    this.#sytemGroup.beforeSystemNextLoop.forEach((sys) => {
-      sys.beforeSystemNextLoop();
-    });
-    // beforeSystemNextLoop
 
     // nextick(() => {
     this.#loopTimer = window.requestAnimationFrame(loop);
@@ -186,6 +191,7 @@ export default class Canvee {
         ctx.restore();
       },
     );
+    // ctx.clip();
   }
 
   stop() {
@@ -201,8 +207,13 @@ export default class Canvee {
     this.#isDirty = true;
   }
 
-  /** @internal */
-  getMasterSystem(ext: CanveeExtension) {
-    return this.#systems.find((sys) => sys.isMasterOf(ext));
+  updateSystemSubTreeArr() {
+    this.#subtreeArr = getSubTreeArr(this.#willUseSubtreeSystems, this.scene);
+  }
+
+  getSubTreeForSystem(sys: CanveeExtensionSystem) {
+    return this.#subtreeArr[
+      this.#willUseSubtreeSystems.findIndex((s) => s === sys)
+    ];
   }
 }

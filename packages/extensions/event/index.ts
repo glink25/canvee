@@ -5,7 +5,7 @@ import CanveeExtensionSystem, {
   SystemHook,
 } from "~/core/extension";
 import { DeepRequied, Point } from "~/type";
-import { getSubTree, travelTreeable, Node } from "~/utils";
+import { travelTreeable } from "~/utils";
 import Event, {
   EventEmitter,
   EVENT_MAP,
@@ -14,9 +14,9 @@ import Event, {
   ListenerType,
 } from "./event";
 
-function getEventSubtree(scene) {
-  return getSubTree(scene, (c) => c.usages.some((u) => u instanceof Event));
-}
+// function getEventSubtree(scene) {
+//   return getSubTree(scene, (c) => c.usages.some((u) => u instanceof Event));
+// }
 
 function defineHitArea(
   ctx: CanvasRenderingContext2D,
@@ -78,20 +78,18 @@ const EventNames = [
   "touchend",
 ];
 
-export default class EventSystem implements CanveeExtensionSystem {
-  instance?: Canvee;
-
+export default class EventSystem extends CanveeExtensionSystem {
   #copyCanvas: HTMLCanvasElement;
 
   #listenFn: Array<(e: any) => void> = [];
 
-  #eventTree?: Node;
-
   prventScroll: boolean;
 
   constructor(arg?: EventSystemArg) {
+    super();
     this.prventScroll = arg?.preventScroll ?? false;
     this.#copyCanvas = document.createElement("canvas");
+    this.willUseSubtree = true;
   }
 
   registedHooks = [
@@ -101,19 +99,17 @@ export default class EventSystem implements CanveeExtensionSystem {
   ] as Array<SystemHook>;
 
   /** @internal */
-  updateEventTree() {
-    this.#eventTree = getEventSubtree(this.instance!.scene);
-  }
+  // updateEventTree() {
+  //   this.#eventTree = getEventSubtree(this.instance!.scene);
+  // }
 
-  beforeSystemReRender() {}
-
-  afterSystemTreeRebuild() {
-    this.updateEventTree();
-  }
+  // afterSystemTreeRebuild() {
+  //   this.updateEventTree();
+  // }
 
   beforeSystemStart() {
     if (!this.instance) return;
-    this.updateEventTree();
+    // this.updateEventTree();
     const { instance } = this;
     const ctx = this.#copyCanvas.getContext("2d") as CanvasRenderingContext2D;
 
@@ -172,8 +168,9 @@ export default class EventSystem implements CanveeExtensionSystem {
           },
           raw: e,
         };
+        if (!this.subtree) return;
         travelTreeable(
-          this.#eventTree!,
+          this.subtree,
           ({ node: c }) => {
             ctx.save();
             c.setContext(ctx);
@@ -227,15 +224,11 @@ export default class EventSystem implements CanveeExtensionSystem {
     });
   }
 
-  beforeComponentRender(_c: Component) {}
-
   beforeSystemStop() {
     EventNames.forEach((name, i) => {
       this.instance?.canvas.removeEventListener(name, this.#listenFn[i]);
     });
   }
-
-  beforeSystemNextLoop() {}
 
   isMasterOf(usage: CanveeExtension) {
     return usage instanceof Event;

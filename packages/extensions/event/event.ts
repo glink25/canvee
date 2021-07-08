@@ -1,5 +1,4 @@
 import { CanveeExtension, Component } from "~/core";
-import EventSystem from ".";
 
 export const EVENT_MAP = {
   pointerdown: ["mousedown", "touchstart"],
@@ -41,13 +40,14 @@ export type ListenerType = (e: EventEmitter) => void;
 
 export type PointerEventName = keyof typeof EVENT_MAP;
 
-export default class Event implements CanveeExtension {
+export default class Event extends CanveeExtension {
   /** @internal */
   events: Array<{ name: PointerEventName; fn: ListenerType; global?: boolean }>;
 
   hitArea: HitArea;
 
   constructor(arg?: EventArg) {
+    super();
     let hitArea: HitArea;
     if (!arg?.hitArea) {
       hitArea = { type: HitAreaType.DEFAULT, option: [] };
@@ -57,16 +57,8 @@ export default class Event implements CanveeExtension {
   }
 
   beforeDiscard(c: Component) {
-    (
-      c.scene?.canvee.getMasterSystem(this) as EventSystem | undefined
-    )?.updateEventTree();
+    c.scene?.canvee.updateSystemSubTreeArr();
   }
-
-  beforeRender() {}
-
-  afterRender() {}
-
-  onAdded() {}
 
   on(name: PointerEventName, fn: ListenerType) {
     this.events.push({ name, fn });

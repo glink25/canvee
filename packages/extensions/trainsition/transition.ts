@@ -25,7 +25,7 @@ const setTransform = (name: string, comp: Component, v: number) => {
   }
 };
 
-export default class Transition implements CanveeExtension {
+export default class Transition extends CanveeExtension {
   readonly group: TransiontionArg["group"];
 
   // #timer: number = 0;
@@ -34,6 +34,7 @@ export default class Transition implements CanveeExtension {
   #tweenGroup: { [propName: string]: Array<Tween> };
 
   constructor(args: TransiontionArg) {
+    super();
     this.group = args.group;
     this.#tweenGroup = {};
     this.setTweenGroup();
@@ -112,16 +113,4 @@ export default class Transition implements CanveeExtension {
       });
     }
   }
-
-  onAdded() {}
-
-  beforeDiscard() {
-    // (
-    //   c.scene?.canvee.getMasterSystem(this) as TransitionSystem | undefined
-    // )?.updateTrainsitionTree();
-  }
-
-  beforeRender() {}
-
-  afterRender() {}
 }
