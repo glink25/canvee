@@ -15,6 +15,9 @@ tween.slicing((v,p)=>{
     // 手动将compoenent的positonX改变，以此达到平移动画的效果
     component.transform.position.x=v
 })
+
+// 手动播放动画
+tween.play()
 ```
 
 你也可以使用tween来设置一组连续动画，如：
@@ -35,6 +38,9 @@ tween.slicing((v,p)=>{
     // component将向左移动100单位，然后再移回原位
     component.transform.position.x=v
 })
+
+// 手动播放动画
+tween.play()
 ```
 
 你也可以通过Tween的pause和resume方法来暂停或者继续执行函数。

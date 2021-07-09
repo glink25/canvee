@@ -61,7 +61,7 @@ export default class Transition extends CanveeExtension {
                 });
                 return t;
               }
-              (p as unknown as Tween).tween({
+              p.tween({
                 from: l.value,
                 to: c.value,
                 duration: c.time - l.time,
@@ -82,7 +82,7 @@ export default class Transition extends CanveeExtension {
     if (tween) {
       tween.forEach((t, i) => {
         if (i === 0 && after) t.play(num).after(after);
-        else t.play(num);
+        else t?.play(num);
       });
     }
   }
