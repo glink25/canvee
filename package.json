@@ -1,6 +1,6 @@
 {
   "name": "canvee",
-  "version": "0.1.17",
+  "version": "0.1.18",
   "main": "lib/index.esm.js",
   "module": "lib/index.esm.js",
   "types": "lib/packages/index.d.ts",
